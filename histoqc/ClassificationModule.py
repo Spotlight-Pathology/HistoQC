@@ -224,11 +224,17 @@ def byExampleWithFeatures(s, params):
 
     area_thresh = int(params.get("area_threshold", "5"))
     if area_thresh > 0:
-        mask = remove_small_objects(mask, min_size=area_thresh, in_place=True)
+        mask = remove_small_objects(mask, min_size=area_thresh)
 
     dilate_kernel_size = int(params.get("dilate_kernel_size", "0"))
     if dilate_kernel_size > 0:
-        mask = dilation(mask, selem=np.ones((dilate_kernel_size, dilate_kernel_size)))
+        mask = dilation(
+            mask, 
+            footprint=[ # Equivalent to a square selem of KxK.
+                (np.ones((dilate_kernel_size, 1)), 1), 
+                (np.ones((1, dilate_kernel_size)), 1),
+            ],
+        )
 
     mask = s["img_mask_use"] & (mask > 0)
 
