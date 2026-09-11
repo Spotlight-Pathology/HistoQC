@@ -25,8 +25,20 @@ def getBasicStats(s, params):
     # (e.g. aperio.ScanScope ID, hamamatsu.SourceLens), none of which name the
     # scanner manufacturer or model. For non-DICOM slides these two fields therefore
     # fall back to "NA", same as every other field in this function.
+    #
+    # One exception: the older Leica SCN format (pre-dating Leica's 2012
+    # acquisition of Aperio; every Leica scanner released since then uses the
+    # aperio.* namespace instead, so this only matters for historical .scn
+    # archives) exposes "leica.device-model" from its own XML metadata. There's
+    # no equivalent "leica.manufacturer" property to pair with it - the file's
+    # vendor ("leica", already visible in the "type" column) implies the
+    # manufacturer, so scanner_manufacturer still falls back to "NA" here.
     s.addToPrintList("scanner_manufacturer", osh.properties.get("dicom.Manufacturer", "NA"))
-    s.addToPrintList("scanner_model", osh.properties.get("dicom.ManufacturerModelName", "NA"))
+    s.addToPrintList(
+        "scanner_model",
+        osh.properties.get("dicom.ManufacturerModelName")
+        or osh.properties.get("leica.device-model", "NA"),
+    )
     return
 
 
