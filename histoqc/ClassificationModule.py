@@ -228,13 +228,14 @@ def byExampleWithFeatures(s, params):
 
     dilate_kernel_size = int(params.get("dilate_kernel_size", "0"))
     if dilate_kernel_size > 0:
-        mask = dilation(
-            mask, 
-            footprint=[ # Equivalent to a square selem of KxK.
-                (np.ones((dilate_kernel_size, 1)), 1), 
-                (np.ones((1, dilate_kernel_size)), 1),
-            ],
-        )
+        # A plain square footprint, not the decomposed [(footprint, num_iter), ...]
+        # form: that form is only understood by scikit-image releases newer than
+        # the one this project's requirements.txt actually pins (~=0.19.2), where
+        # passing it silently produces a ragged footprint array and fails deep in
+        # scipy.ndimage with "ValueError: setting an array element with a
+        # sequence." A plain ndarray works identically on both 0.19.x and current
+        # scikit-image releases.
+        mask = dilation(mask, footprint=np.ones((dilate_kernel_size, dilate_kernel_size)))
 
     mask = s["img_mask_use"] & (mask > 0)
 
