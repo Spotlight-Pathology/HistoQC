@@ -34,6 +34,8 @@ class TestBaseImageModule(unittest.TestCase):
             'mpp_x':'0.50149999999999995',
             'mpp_y':'0.50149999999999995',
             'comment':'Aperio Fake |AppMag = 20|MPP = 0.5015',
+            'scanner_manufacturer':'NA',
+            'scanner_model':'NA',
             }
         
         self.pixels_to_use='65536'
