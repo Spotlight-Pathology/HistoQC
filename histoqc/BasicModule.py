@@ -17,6 +17,16 @@ def getBasicStats(s, params):
     s.addToPrintList("mpp_x", osh.properties.get("openslide.mpp-x", "NA"))
     s.addToPrintList("mpp_y", osh.properties.get("openslide.mpp-y", "NA"))
     s.addToPrintList("comment", osh.properties.get("openslide.comment", "NA").replace("\n", " ").replace("\r", " "))
+    # Only OpenSlide's DICOM backend exposes these - it maps every element of the
+    # source dataset to a "dicom.<Keyword>" property, including the standard DICOM
+    # Manufacturer (0008,0070) and Manufacturer's Model Name (0008,1090) attributes.
+    # The Aperio and Hamamatsu backends have no equivalent: they only expose whatever
+    # key/value pairs those vendors embed in their own proprietary metadata blob
+    # (e.g. aperio.ScanScope ID, hamamatsu.SourceLens), none of which name the
+    # scanner manufacturer or model. For non-DICOM slides these two fields therefore
+    # fall back to "NA", same as every other field in this function.
+    s.addToPrintList("scanner_manufacturer", osh.properties.get("dicom.Manufacturer", "NA"))
+    s.addToPrintList("scanner_model", osh.properties.get("dicom.ManufacturerModelName", "NA"))
     return
 
 
